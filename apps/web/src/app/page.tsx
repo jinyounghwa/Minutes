@@ -15,7 +15,7 @@ export default function LandingPage() {
       title: "Intelligent Analysis",
       description: "Automatically extracts key points and organizes them. Smart summaries for long meetings.",
       header: <SkeletonOne />,
-      icon: <Zap className="h-4 w-4 text-neutral-400" />,
+      icon: <Zap className="h-4 w-4 text-indigo-400" />,
       className: "md:col-span-2 border-white/10 bg-white/5 hover:bg-white/10",
     },
     {

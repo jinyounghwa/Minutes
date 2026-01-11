@@ -1,7 +1,7 @@
 'use client';
 
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Environment, Float, ContactShadows, Stars } from '@react-three/drei';
+import { Environment, Float, Stars } from '@react-three/drei';
 import { useRef } from 'react';
 import * as THREE from 'three';
 
@@ -52,13 +52,12 @@ function Geometries() {
 export default function Scene() {
   return (
     <div className="absolute inset-0 z-0 h-full w-full">
-        <Canvas camera={{ position: [0, 0, 8], fov: 45 }} dpr={[1, 2]}>
+        <Canvas camera={{ position: [0, 0, 8], fov: 45 }} dpr={[1, 2]} gl={{ antialias: true, alpha: true }}>
         <ambientLight intensity={0.5} />
         <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} />
         <pointLight position={[-10, -10, -10]} intensity={1} color="#ffffff" />
         
         <Geometries />
-        <ContactShadows resolution={1024} scale={20} blur={2} opacity={0.5} far={10} color="#000000" />
         <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
         
         <Environment preset="city" />
