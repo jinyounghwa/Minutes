@@ -1,0 +1,23 @@
+{
+  "name": "minutes",
+  "version": "1.0.0",
+  "description": "Minutes web",
+  "main": "index.js",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev -w apps/web",
+    "dev:api": "npm run start:dev -w apps/api",
+    "build:web": "npm run build -w apps/web",
+    "build:api": "npm run build -w apps/api"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jinyounghwa/Minutes.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module"
+}
