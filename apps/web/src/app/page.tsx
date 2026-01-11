@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowRight, Zap, Shield, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const Spline = dynamic(() => import('@splinetool/react-spline'), {
+const Spline = dynamic(() => import('@/components/SplineScene'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-full flex items-center justify-center bg-black/20 backdrop-blur-sm">
