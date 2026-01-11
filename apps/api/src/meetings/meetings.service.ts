@@ -365,17 +365,16 @@ export class MeetingsService {
       where: { created_by: userId, deleted_at: IsNull() },
     });
 
-    // 최근 7일간 회의록 수
+    // 최근 7일간 회의록 수 (쿼리빌더 사용)
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    const recentMeetings = await this.meetingsRepository.count({
-      where: {
-        created_by: userId,
-        deleted_at: IsNull(),
-        created_at: Not(IsNull()),
-      },
-    });
+    const recentMeetings = await this.meetingsRepository
+      .createQueryBuilder('m')
+      .where('m.created_by = :userId', { userId })
+      .andWhere('m.deleted_at IS NULL')
+      .andWhere('m.created_at >= :sevenDaysAgo', { sevenDaysAgo })
+      .getCount();
 
     // 접근 수준별 회의록 수
     const publicMeetings = await this.meetingsRepository.count({

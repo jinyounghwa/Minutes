@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
-import { Plus, FileText, Clock, Lock, MoreVertical, BarChart3, Unlock, ShieldAlert } from 'lucide-react';
+import { Plus, FileText, Clock, Lock, MoreVertical, Unlock, ShieldAlert } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import api from '@/lib/api';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -44,14 +45,22 @@ export default function DashboardPage() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [meetingsRes, statsRes] = await Promise.all([
-        api.get('/meetings'),
-        api.get('/meetings/stats/overview'),
-      ]);
+
+      // 회의록 데이터 (필수)
+      const meetingsRes = await api.get('/meetings');
       setMeetings(meetingsRes.data || []);
-      setStatistics(statsRes.data);
+
+      // 통계 데이터 (선택)
+      try {
+        const statsRes = await api.get('/meetings/stats/overview');
+        setStatistics(statsRes.data);
+      } catch (statsErr) {
+        console.warn('Failed to fetch statistics', statsErr);
+        // 통계 로드 실패해도 대시보드는 계속 표시
+        setStatistics(null);
+      }
     } catch (err) {
-      console.error('Failed to fetch dashboard data', err);
+      console.error('Failed to fetch meetings data', err);
     } finally {
       setLoading(false);
     }
@@ -184,6 +193,65 @@ export default function DashboardPage() {
                   </Card>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Access Level Distribution Chart */}
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">접근 수준 분포</h3>
+            <Card>
+              <CardContent className="p-6">
+                <div style={{ width: '100%', height: 300 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: '공개', value: statistics.byAccessLevel.public, fill: '#10b981' },
+                          { name: '팀', value: statistics.byAccessLevel.team, fill: '#3b82f6' },
+                          { name: '비공개', value: statistics.byAccessLevel.private, fill: '#ef4444' },
+                        ]}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, value }: any) => `${name}: ${value}`}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        <Cell fill="#10b981" />
+                        <Cell fill="#3b82f6" />
+                        <Cell fill="#ef4444" />
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Daily Stats Chart */}
+          {statistics.dailyStats.length > 0 && (
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">최근 7일 회의록 추세</h3>
+              <Card>
+                <CardContent className="p-6">
+                  <div style={{ width: '100%', height: 300 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={statistics.dailyStats.map((stat) => ({
+                        ...stat,
+                        date: new Date(stat.date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }),
+                      }))}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="count" fill="#6366f1" name="회의록 수" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           )}
         </div>
