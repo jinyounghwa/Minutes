@@ -1,9 +1,18 @@
 'use client';
 
-import Spline from '@splinetool/react-spline';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { ArrowRight, Zap, Shield, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
+const Spline = dynamic(() => import('@splinetool/react-spline'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center bg-black/20 backdrop-blur-sm">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+    </div>
+  ),
+});
 
 export default function LandingPage() {
   return (
