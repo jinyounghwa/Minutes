@@ -56,7 +56,7 @@ export class MeetingsController {
   @Post()
   async create(
     @Request() req: RequestWithUser,
-    @Body() body: Partial<Meeting>,
+    @Body() body: Partial<Meeting> & { team_ids?: string[] },
   ) {
     return this.meetingsService.create(req.user.userId, body);
   }
@@ -69,6 +69,11 @@ export class MeetingsController {
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.meetingsService.softDelete(id);
+  }
+
+  @Delete(':id/permanent')
+  async permanentRemove(@Param('id') id: string) {
+    return this.meetingsService.permanentDelete(id);
   }
 
   @Post(':id/restore')
@@ -154,7 +159,12 @@ export class MeetingsController {
     @Param('id') id: string,
     @Body() body: { user_id?: string; team_id?: string; permission: string },
   ) {
-    return this.meetingsService.setPermission(id, body.user_id, body.team_id, body.permission);
+    return this.meetingsService.setPermission(
+      id,
+      body.user_id ?? null,
+      body.team_id ?? null,
+      body.permission,
+    );
   }
 
   @Delete(':id/permissions/:permissionId')
@@ -172,10 +182,7 @@ export class MeetingsController {
 
   // Action Items
   @Post(':id/action-items')
-  async createActionItem(
-    @Param('id') id: string,
-    @Body() body: Partial<any>,
-  ) {
+  async createActionItem(@Param('id') id: string, @Body() body: Partial<any>) {
     return this.meetingsService.createActionItem(id, body);
   }
 

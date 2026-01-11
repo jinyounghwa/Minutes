@@ -21,11 +21,18 @@ import {
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
-  DropdownMenuTrigger 
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+  DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
 import { JSONContent } from '@tiptap/react';
 
 interface Project {
+  id: string;
+  name: string;
+}
+
+interface Team {
   id: string;
   name: string;
 }
@@ -36,8 +43,12 @@ export default function NewMeetingPage() {
   const [contentText, setContentText] = useState('');
   const [loading, setLoading] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [selectedTeamIds, setSelectedTeamIds] = useState<string[]>([]);
 
   const router = useRouter();
 
@@ -50,7 +61,16 @@ export default function NewMeetingPage() {
         console.error('Failed to fetch projects', err);
       }
     };
+    const fetchTeams = async () => {
+      try {
+        const res = await api.get('/teams');
+        setTeams(res.data);
+      } catch (err) {
+        console.error('Failed to fetch teams', err);
+      }
+    };
     fetchProjects();
+    fetchTeams();
   }, []);
 
   const handleSave = async () => {
@@ -66,6 +86,7 @@ export default function NewMeetingPage() {
         content_text: contentText,
         access_level: 'team', // default
         project_id: selectedProjectId,
+        team_ids: selectedTeamIds,
       });
       router.push(`/dashboard/meetings/${res.data.id}`);
     } catch (err) {
@@ -80,7 +101,24 @@ export default function NewMeetingPage() {
     setContent(templateContent);
   };
 
+  const handleToggleTeam = (teamId: string) => {
+    setSelectedTeamIds(prev => 
+      prev.includes(teamId) 
+        ? prev.filter(id => id !== teamId)
+        : [...prev, teamId]
+    );
+  };
+
   const selectedProjectName = projects.find(p => p.id === selectedProjectId)?.name || '미지정';
+  
+  const getAccessLabel = () => {
+    if (selectedTeamIds.length === 0) return '기본 (팀)';
+    if (selectedTeamIds.length === 1) {
+        const team = teams.find(t => t.id === selectedTeamIds[0]);
+        return team ? team.name : '1개 팀';
+    }
+    return `${selectedTeamIds.length}개 팀`;
+  };
 
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-slate-950">
@@ -169,10 +207,31 @@ export default function NewMeetingPage() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400">
-                 <span className="font-semibold text-slate-900 dark:text-white">접근:</span>
-                 팀
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                     <span className="font-semibold text-slate-900 dark:text-white">접근:</span>
+                     {getAccessLabel()}
+                     <ChevronDown className="w-3 h-3 opacity-50" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-56">
+                  <DropdownMenuItem onClick={() => setSelectedTeamIds([])}>
+                    기본 (팀 전체)
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  {teams.map((team) => (
+                    <DropdownMenuCheckboxItem 
+                        key={team.id} 
+                        checked={selectedTeamIds.includes(team.id)}
+                        onCheckedChange={() => handleToggleTeam(team.id)}
+                        onSelect={(e) => e.preventDefault()}
+                    >
+                      {team.name}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
            </div>
 
            <Editor

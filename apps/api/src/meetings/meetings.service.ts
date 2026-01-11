@@ -51,12 +51,31 @@ export class MeetingsService {
     return meeting;
   }
 
-  async create(userId: string, data: Partial<Meeting>): Promise<Meeting> {
+  async create(
+    userId: string,
+    data: Partial<Meeting> & { team_ids?: string[] },
+  ): Promise<Meeting> {
+    const { team_ids, ...meetingData } = data;
     const meeting = this.meetingsRepository.create({
-      ...data,
+      ...meetingData,
       created_by: userId,
     });
-    return this.meetingsRepository.save(meeting);
+    const savedMeeting = await this.meetingsRepository.save(meeting);
+
+    if (team_ids && team_ids.length > 0) {
+      const meetingPermissionRepo =
+        this.linksRepository.manager.getRepository(MeetingPermission);
+      const permissions = team_ids.map((teamId) =>
+        meetingPermissionRepo.create({
+          meeting_id: savedMeeting.id,
+          team_id: teamId,
+          permission: 'write',
+        }),
+      );
+      await meetingPermissionRepo.save(permissions);
+    }
+
+    return savedMeeting;
   }
 
   async update(id: string, data: Partial<Meeting>): Promise<Meeting> {
@@ -66,6 +85,10 @@ export class MeetingsService {
 
   async softDelete(id: string): Promise<void> {
     await this.meetingsRepository.softDelete(id);
+  }
+
+  async permanentDelete(id: string): Promise<void> {
+    await this.meetingsRepository.delete(id);
   }
 
   async getImpactAnalysis(id: string) {
@@ -103,7 +126,8 @@ export class MeetingsService {
     userId: string,
     description?: string,
   ) {
-    const meetingVersionRepo = this.linksRepository.manager.getRepository(MeetingVersion);
+    const meetingVersionRepo =
+      this.linksRepository.manager.getRepository(MeetingVersion);
     const latestVersion = await meetingVersionRepo.findOne({
       where: { meeting_id: meetingId },
       order: { version: 'DESC' },
@@ -131,7 +155,8 @@ export class MeetingsService {
   }
 
   async restoreVersion(meetingId: string, versionId: string) {
-    const meetingVersionRepo = this.linksRepository.manager.getRepository(MeetingVersion);
+    const meetingVersionRepo =
+      this.linksRepository.manager.getRepository(MeetingVersion);
     const version = await meetingVersionRepo.findOne({
       where: { id: versionId, meeting_id: meetingId },
     });
@@ -184,8 +209,13 @@ export class MeetingsService {
   }
 
   // Meeting Participants
-  async addParticipant(meetingId: string, userId: string, role: string = 'participant') {
-    const meetingParticipantRepo = this.linksRepository.manager.getRepository(MeetingParticipant);
+  async addParticipant(
+    meetingId: string,
+    userId: string,
+    role: string = 'participant',
+  ) {
+    const meetingParticipantRepo =
+      this.linksRepository.manager.getRepository(MeetingParticipant);
     const existing = await meetingParticipantRepo.findOne({
       where: { meeting_id: meetingId, user_id: userId },
     });
@@ -201,7 +231,8 @@ export class MeetingsService {
   }
 
   async removeParticipant(meetingId: string, userId: string) {
-    const meetingParticipantRepo = this.linksRepository.manager.getRepository(MeetingParticipant);
+    const meetingParticipantRepo =
+      this.linksRepository.manager.getRepository(MeetingParticipant);
     await meetingParticipantRepo.delete({
       meeting_id: meetingId,
       user_id: userId,
@@ -209,7 +240,8 @@ export class MeetingsService {
   }
 
   async getParticipants(meetingId: string) {
-    const meetingParticipantRepo = this.linksRepository.manager.getRepository(MeetingParticipant);
+    const meetingParticipantRepo =
+      this.linksRepository.manager.getRepository(MeetingParticipant);
     return meetingParticipantRepo.find({
       where: { meeting_id: meetingId },
       relations: ['user'],
@@ -217,24 +249,34 @@ export class MeetingsService {
   }
 
   // Meeting Permissions
-  async setPermission(meetingId: string, userId: string | null, teamId: string | null, permission: string) {
-    const meetingPermissionRepo = this.linksRepository.manager.getRepository(MeetingPermission);
-    const permission = meetingPermissionRepo.create({
+  async setPermission(
+    meetingId: string,
+    userId: string | null,
+    teamId: string | null,
+    permission: string,
+  ) {
+    const meetingPermissionRepo =
+      this.linksRepository.manager.getRepository(MeetingPermission);
+    const permissionData: any = {
       meeting_id: meetingId,
-      user_id: userId,
-      team_id: teamId,
       permission,
-    });
-    return meetingPermissionRepo.save(permission);
+    };
+    if (userId) permissionData.user_id = userId;
+    if (teamId) permissionData.team_id = teamId;
+
+    const permissionEntity = meetingPermissionRepo.create(permissionData);
+    return meetingPermissionRepo.save(permissionEntity);
   }
 
   async removePermission(meetingId: string, permissionId: string) {
-    const meetingPermissionRepo = this.linksRepository.manager.getRepository(MeetingPermission);
-    await meetingPermissionRepo.delete({ id: permissionId, meeting_id: meetingId });
+    const meetingPermissionRepo =
+      this.linksRepository.manager.getRepository(MeetingPermission);
+    await meetingPermissionRepo.delete({ id: permissionId });
   }
 
   async getPermissions(meetingId: string) {
-    const meetingPermissionRepo = this.linksRepository.manager.getRepository(MeetingPermission);
+    const meetingPermissionRepo =
+      this.linksRepository.manager.getRepository(MeetingPermission);
     return meetingPermissionRepo.find({
       where: { meeting_id: meetingId },
       relations: ['user', 'team'],
@@ -243,7 +285,8 @@ export class MeetingsService {
 
   // Action Items
   async createActionItem(meetingId: string, data: Partial<ActionItem>) {
-    const actionItemRepo = this.linksRepository.manager.getRepository(ActionItem);
+    const actionItemRepo =
+      this.linksRepository.manager.getRepository(ActionItem);
     const actionItem = actionItemRepo.create({
       ...data,
       meeting_id: meetingId,
@@ -252,18 +295,21 @@ export class MeetingsService {
   }
 
   async updateActionItem(actionItemId: string, data: Partial<ActionItem>) {
-    const actionItemRepo = this.linksRepository.manager.getRepository(ActionItem);
+    const actionItemRepo =
+      this.linksRepository.manager.getRepository(ActionItem);
     await actionItemRepo.update(actionItemId, data);
     return actionItemRepo.findOne({ where: { id: actionItemId } });
   }
 
   async deleteActionItem(actionItemId: string) {
-    const actionItemRepo = this.linksRepository.manager.getRepository(ActionItem);
+    const actionItemRepo =
+      this.linksRepository.manager.getRepository(ActionItem);
     await actionItemRepo.delete(actionItemId);
   }
 
   async getActionItems(meetingId: string) {
-    const actionItemRepo = this.linksRepository.manager.getRepository(ActionItem);
+    const actionItemRepo =
+      this.linksRepository.manager.getRepository(ActionItem);
     return actionItemRepo.find({
       where: { meeting_id: meetingId },
       relations: ['assignee', 'meeting'],
