@@ -3,15 +3,16 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { 
-  Zap, 
-  Home, 
-  FileText, 
-  Users, 
-  Settings, 
-  Trash2, 
-  Plus, 
-  FolderOpen
+import {
+  Zap,
+  Home,
+  FileText,
+  Users,
+  Settings,
+  Trash2,
+  Plus,
+  FolderOpen,
+  BarChart3
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { cn } from '@/lib/utils';
@@ -25,6 +26,7 @@ export default function Sidebar() {
     { name: '회의록', href: '/dashboard/meetings', icon: FileText },
     { name: '프로젝트', href: '/dashboard/projects', icon: FolderOpen },
     { name: '팀', href: '/dashboard/teams', icon: Users },
+    { name: '분석', href: '/dashboard/analytics', icon: BarChart3 },
     { name: '휴지통', href: '/dashboard/trash', icon: Trash2 },
   ];
 
