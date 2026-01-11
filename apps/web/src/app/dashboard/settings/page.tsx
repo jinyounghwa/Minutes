@@ -100,7 +100,7 @@ export default function SettingsPage() {
     }
   };
 
-  const NavButton = ({ tab, icon: Icon, label }: { tab: string, icon: React.ElementType, label: string }) => (
+  const NavButton = ({ tab, icon: Icon, label }: { tab: string, icon: any, label: string }) => (
     <Button 
         variant={activeTab === tab ? "secondary" : "ghost"} 
         className="w-full justify-start gap-2"

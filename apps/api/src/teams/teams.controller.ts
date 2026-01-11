@@ -43,10 +43,7 @@ export class TeamsController {
   }
 
   @Post()
-  async create(
-    @Request() req: RequestWithUser,
-    @Body() body: Partial<Team>,
-  ) {
+  async create(@Request() req: RequestWithUser, @Body() body: Partial<Team>) {
     return this.teamsService.create(req.user.userId, body);
   }
 

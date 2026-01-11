@@ -27,7 +27,7 @@ export default function LoginPage() {
       setAuth(res.data.user, res.data.access_token);
       router.push('/dashboard');
     } catch (err) {
-      const message = (err as any).response?.data?.message || 'Login failed';
+      const message = (err as any).response?.data?.message || '로그인에 실패했습니다';
       setError(message);
     } finally {
 
@@ -44,8 +44,8 @@ export default function LoginPage() {
               <Zap className="text-white w-6 h-6" />
             </div>
           </div>
-          <CardTitle className="text-2xl">Welcome back</CardTitle>
-          <CardDescription>Enter your credentials to access your account</CardDescription>
+          <CardTitle className="text-2xl">다시 오셨군요</CardTitle>
+          <CardDescription>계정에 접속하려면 로그인 정보를 입력하세요</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
@@ -55,7 +55,7 @@ export default function LoginPage() {
               </div>
             )}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Email</label>
+              <label className="text-sm font-medium">이메일</label>
               <Input
                 type="email"
                 placeholder="name@example.com"
@@ -66,8 +66,8 @@ export default function LoginPage() {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-sm font-medium">Password</label>
-                <Link href="#" className="text-sm text-indigo-600 hover:text-indigo-500">Forgot password?</Link>
+                <label className="text-sm font-medium">비밀번호</label>
+                <Link href="#" className="text-sm text-indigo-600 hover:text-indigo-500">비밀번호를 잊으셨나요?</Link>
               </div>
               <Input
                 type="password"
@@ -81,12 +81,12 @@ export default function LoginPage() {
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 h-11" disabled={loading}>
               {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Sign In
+              로그인
             </Button>
             <p className="text-sm text-slate-500 text-center">
-              Don&apos;t have an account?{' '}
+              아직 계정이 없으신가요?{' '}
 
-              <Link href="/register" className="text-indigo-600 hover:text-indigo-500 font-medium">Create one</Link>
+              <Link href="/register" className="text-indigo-600 hover:text-indigo-500 font-medium">회원가입</Link>
             </p>
           </CardFooter>
         </form>

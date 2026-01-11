@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import api from '@/lib/api';
 import { format, parseISO } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
 interface Assignee {
   id: string;
@@ -88,7 +89,7 @@ export default function ActionItems({ meetingId }: ActionItemsProps) {
       fetchItems();
     } catch (err) {
       console.error(err);
-      alert('Failed to create action item');
+      alert('액션 아이템 생성에 실패했습니다');
     }
   };
 
@@ -118,21 +119,21 @@ export default function ActionItems({ meetingId }: ActionItemsProps) {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <CheckSquare className="w-5 h-5 text-indigo-600" />
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Action Items</h3>
-          <Badge variant="secondary">{items.filter(i => !i.completed).length} pending</Badge>
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">액션 아이템</h3>
+          <Badge variant="secondary">{items.filter(i => !i.completed).length}개 대기</Badge>
         </div>
         <Button size="sm" variant="outline" onClick={() => setShowCreateDialog(true)}>
-          <Plus className="w-4 h-4 mr-1" /> Add Item
+          <Plus className="w-4 h-4 mr-1" /> 항목 추가
         </Button>
       </div>
 
       <div className="space-y-2">
         {loading ? (
-          <div className="text-center text-slate-500 py-4">Loading action items...</div>
+          <div className="text-center text-slate-500 py-4">액션 아이템 불러오는 중...</div>
         ) : items.length === 0 ? (
           <div className="text-center py-8 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-lg">
             <CheckSquare className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-            <p className="text-sm text-slate-500">No action items yet</p>
+            <p className="text-sm text-slate-500">아직 액션 아이템이 없습니다</p>
           </div>
         ) : (
           items.map((item) => (
@@ -167,7 +168,7 @@ export default function ActionItems({ meetingId }: ActionItemsProps) {
                           : 'text-slate-500'
                       }`}>
                         <Calendar className="w-3 h-3" />
-                        {format(parseISO(item.due_date), 'MMM d, yyyy')}
+                        {format(parseISO(item.due_date), 'yyyy년 M월 d일', { locale: ko })}
                       </div>
                     )}
                     {item.assignee && (
@@ -185,9 +186,9 @@ export default function ActionItems({ meetingId }: ActionItemsProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>Edit</DropdownMenuItem>
+                    <DropdownMenuItem>수정</DropdownMenuItem>
                     <DropdownMenuItem className="text-red-500" onClick={() => handleDelete(item.id)}>
-                      <Trash2 className="w-4 h-4 mr-2" /> Delete
+                      <Trash2 className="w-4 h-4 mr-2" /> 삭제
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -200,22 +201,22 @@ export default function ActionItems({ meetingId }: ActionItemsProps) {
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Action Item</DialogTitle>
+            <DialogTitle>액션 아이템 추가</DialogTitle>
             <DialogDescription>
-              Create a new task or action item for this meeting.
+              이 회의에 대한 새 작업 또는 액션 아이템을 생성하세요.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Description</label>
+              <label className="text-sm font-medium">설명</label>
               <Input
-                placeholder="What needs to be done?"
+                placeholder="무엇을 해야 하나요?"
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Due Date (optional)</label>
+              <label className="text-sm font-medium">마감일 (선택사항)</label>
               <Input
                 type="date"
                 value={newDueDate}
@@ -225,10 +226,10 @@ export default function ActionItems({ meetingId }: ActionItemsProps) {
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setShowCreateDialog(false)}>
-              Cancel
+              취소
             </Button>
             <Button onClick={handleCreate} disabled={!newDescription}>
-              Add Item
+              항목 추가
             </Button>
           </DialogFooter>
         </DialogContent>

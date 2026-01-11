@@ -15,6 +15,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import api from '@/lib/api';
 import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
 interface MeetingVersion {
   id: string;
@@ -61,7 +62,7 @@ export default function VersionHistoryPanel({ meetingId, open, onClose, onRestor
       <div className="h-14 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <History className="w-4 h-4 text-indigo-600" />
-          <h3 className="font-semibold text-sm">Version History</h3>
+          <h3 className="font-semibold text-sm">버전 히스토리</h3>
         </div>
         <Button variant="ghost" size="icon" onClick={onClose}>
           <ChevronLeft className="w-4 h-4 rotate-180" />
@@ -71,9 +72,9 @@ export default function VersionHistoryPanel({ meetingId, open, onClose, onRestor
       <ScrollArea className="flex-1">
         <div className="p-4">
           {loading ? (
-            <div className="text-center text-slate-500 py-8">Loading versions...</div>
+            <div className="text-center text-slate-500 py-8">버전 불러오는 중...</div>
           ) : versions.length === 0 ? (
-            <div className="text-center text-slate-500 py-8">No versions yet</div>
+            <div className="text-center text-slate-500 py-8">아직 버전이 없습니다</div>
           ) : (
             <div className="space-y-4">
               {versions.map((version, index) => (
@@ -92,7 +93,7 @@ export default function VersionHistoryPanel({ meetingId, open, onClose, onRestor
                       </Badge>
                       <div className="flex items-center gap-1 text-xs text-slate-500">
                         <Clock className="w-3 h-3" />
-                        {format(new Date(version.created_at), 'MMM d, yyyy • HH:mm')}
+                        {format(new Date(version.created_at), 'yyyy년 M월 d일 • HH:mm', { locale: ko })}
                       </div>
                     </div>
                     {index > 0 && (
@@ -102,7 +103,7 @@ export default function VersionHistoryPanel({ meetingId, open, onClose, onRestor
                           size="icon"
                           className="h-7 w-7"
                           onClick={() => setComparing(comparing === version.id ? null : version.id)}
-                          title="Compare"
+                          title="비교"
                         >
                           <GitCompare className="w-3 h-3" />
                         </Button>
@@ -111,7 +112,7 @@ export default function VersionHistoryPanel({ meetingId, open, onClose, onRestor
                           size="icon"
                           className="h-7 w-7"
                           onClick={() => onRestore(version.id)}
-                          title="Restore this version"
+                          title="이 버전으로 복구"
                         >
                           <RotateCcw className="w-3 h-3" />
                         </Button>
@@ -138,13 +139,13 @@ export default function VersionHistoryPanel({ meetingId, open, onClose, onRestor
 
       {comparing && (
         <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50">
-          <p className="text-sm font-medium mb-2">Comparing with current version</p>
+          <p className="text-sm font-medium mb-2">현재 버전과 비교 중</p>
           <Button
             size="sm"
             className="w-full"
             onClick={() => setComparing(null)}
           >
-            Close Comparison
+            비교 닫기
           </Button>
         </div>
       )}

@@ -40,6 +40,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { type JSONContent } from '@tiptap/react';
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
 interface Meeting {
   id: string;
@@ -109,7 +111,7 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
       });
     } catch (err) {
       console.error(err);
-      alert('Failed to update meeting');
+      alert('회의록 수정에 실패했습니다');
     } finally {
       setSaving(false);
     }
@@ -140,12 +142,21 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
       fetchMeeting();
     } catch (err) {
       console.error(err);
-      alert('Failed to restore version');
+      alert('버전 복구에 실패했습니다');
     }
   };
 
   const handleSelectTemplate = (templateContent: JSONContent) => {
     setContent(templateContent);
+  };
+
+  const getAccessLevelName = (level: string) => {
+    switch (level) {
+      case 'public': return '공개';
+      case 'team': return '팀';
+      case 'private': return '비공개';
+      default: return level;
+    }
   };
 
   if (loading || !meeting) {
@@ -167,7 +178,7 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
             </Button>
             <input
               className="text-lg font-bold bg-transparent border-none focus:outline-none placeholder:text-slate-400 w-full max-w-lg"
-              placeholder="Meeting Title"
+              placeholder="회의록 제목"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
@@ -175,15 +186,15 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
           <div className="flex items-center gap-2">
             <Button size="sm" variant="ghost" className="gap-2 hidden md:flex" onClick={() => setShowSidePanel(!showSidePanel)}>
               <ExternalLink className="w-4 h-4" />
-              Side Panel
+              사이드 패널
             </Button>
             <Button size="sm" variant="outline" className="gap-2">
               <Share2 className="w-4 h-4" />
-              Share
+              공유
             </Button>
             <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 gap-2" onClick={handleUpdate} disabled={saving}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Save
+              저장
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -193,20 +204,20 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem className="gap-2" onClick={() => setShowVersionHistory(true)}>
-                  <History className="w-4 h-4" /> Version History
+                  <History className="w-4 h-4" /> 버전 히스토리
                 </DropdownMenuItem>
                 <DropdownMenuItem className="gap-2" onClick={() => setShowTemplates(true)}>
-                  <FileDown className="w-4 h-4" /> Templates
+                  <FileDown className="w-4 h-4" /> 템플릿
                 </DropdownMenuItem>
                 <DropdownMenuItem className="gap-2">
-                  <FileDown className="w-4 h-4" /> Export as Markdown
+                  <FileDown className="w-4 h-4" /> 마크다운으로 내보내기
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="gap-2">
-                  <Settings2 className="w-4 h-4" /> Settings
+                  <Settings2 className="w-4 h-4" /> 설정
                 </DropdownMenuItem>
                 <DropdownMenuItem className="gap-2 text-red-500" onClick={handleDeleteClick}>
-                  <Trash2 className="w-4 h-4" /> Delete
+                  <Trash2 className="w-4 h-4" /> 삭제
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -219,10 +230,10 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
             <div className="flex gap-4 mb-4 items-center">
               <Badge variant="outline" className="gap-1.5 font-normal capitalize py-1 px-3">
                  <div className="w-2 h-2 rounded-full bg-indigo-500" />
-                 {meeting.access_level}
+                 {getAccessLevelName(meeting.access_level)}
               </Badge>
               <span className="text-xs text-slate-500">
-                 Created by {meeting.creator?.name} on {new Date(meeting.created_at).toLocaleDateString()}
+                 {meeting.creator?.name}님이 {format(new Date(meeting.created_at), 'yyyy년 M월 d일', { locale: ko })}에 생성
               </span>
             </div>
             
@@ -258,7 +269,7 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
       {showSidePanel && (
         <div className="fixed right-0 top-0 bottom-0 w-96 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 z-20 shadow-xl flex flex-col">
           <div className="h-14 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4">
-             <h3 className="font-semibold text-sm">Referenced Documents</h3>
+             <h3 className="font-semibold text-sm">참조 문서</h3>
              <Button variant="ghost" size="icon" onClick={() => setShowSidePanel(false)}>
                <ChevronLeft className="w-4 h-4 rotate-180" />
              </Button>
@@ -268,8 +279,8 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
                 {linkedMeetings.length === 0 ? (
                   <div className="text-center py-8">
                     <ExternalLink className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                    <p className="text-sm text-slate-500">No linked meetings</p>
-                    <p className="text-xs text-slate-400">Link other meetings to see their previews here</p>
+                    <p className="text-sm text-slate-500">연결된 회의록이 없습니다</p>
+                    <p className="text-xs text-slate-400">다른 회의록을 연결하면 여기에 프리뷰가 표시됩니다</p>
                   </div>
                 ) : (
                   linkedMeetings.map((meetingId) => (
@@ -292,16 +303,16 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-red-600">
-               <Info className="w-5 h-5" /> Delete Impact Analysis
+               <Info className="w-5 h-5" /> 삭제 영향도 분석
             </DialogTitle>
             <DialogDescription>
-              Warning: Deleting this document might break links in other meetings.
+              경고: 이 문서를 삭제하면 다른 회의록의 링크가 깨질 수 있습니다.
             </DialogDescription>
           </DialogHeader>
           
           {impactAnalysis && (
             <div className="py-4">
-               <p className="text-sm font-medium mb-3">Documents referencing this meeting ({impactAnalysis.impactedCount}):</p>
+               <p className="text-sm font-medium mb-3">이 회의록을 참조하는 문서 ({impactAnalysis.impactedCount}):</p>
                <ScrollArea className="h-40 border rounded-md p-2">
                   <ul className="space-y-2">
                     {impactAnalysis.impactedMeetings.length > 0 ? (
@@ -312,19 +323,19 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
                         </li>
                       ))
                     ) : (
-                      <li className="text-sm text-slate-500 italic">No inbound links found. Safe to delete.</li>
+                      <li className="text-sm text-slate-500 italic">들어오는 링크가 없습니다. 안전하게 삭제할 수 있습니다.</li>
                     )}
                   </ul>
                </ScrollArea>
                <p className="mt-4 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 p-3 rounded">
-                  This document will be moved to the Trash for 30 days before permanent deletion.
+                  이 문서는 영구 삭제 전 30일 동안 휴지통에 보관됩니다.
                </p>
             </div>
           )}
 
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setShowDeleteDialog(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={confirmDelete}>Move to Trash</Button>
+            <Button variant="ghost" onClick={() => setShowDeleteDialog(false)}>취소</Button>
+            <Button variant="destructive" onClick={confirmDelete}>휴지통으로 이동</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

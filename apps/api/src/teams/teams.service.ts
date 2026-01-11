@@ -38,14 +38,14 @@ export class TeamsService {
       leader_id: userId,
     });
     const savedTeam = await this.teamsRepository.save(team);
-    
+
     // Add the creator as a team member with leader role
     await this.teamMembersRepository.save({
       team_id: savedTeam.id,
       user_id: userId,
       role: 'leader',
     });
-    
+
     return savedTeam;
   }
 
@@ -63,14 +63,18 @@ export class TeamsService {
   }
 
   // Team Members Management
-  async addMember(teamId: string, userId: string, role: string = 'member'): Promise<TeamMember> {
+  async addMember(
+    teamId: string,
+    userId: string,
+    role: string = 'member',
+  ): Promise<TeamMember> {
     const existing = await this.teamMembersRepository.findOne({
       where: { team_id: teamId, user_id: userId },
     });
     if (existing) {
       throw new Error('User is already a member of this team');
     }
-    
+
     const member = this.teamMembersRepository.create({
       team_id: teamId,
       user_id: userId,
@@ -86,7 +90,11 @@ export class TeamsService {
     });
   }
 
-  async updateMemberRole(teamId: string, userId: string, role: string): Promise<TeamMember> {
+  async updateMemberRole(
+    teamId: string,
+    userId: string,
+    role: string,
+  ): Promise<TeamMember> {
     const member = await this.teamMembersRepository.findOne({
       where: { team_id: teamId, user_id: userId },
     });

@@ -21,11 +21,11 @@ export default function Sidebar() {
   const userName = useAuthStore((state) => state.user?.name);
 
   const navItems = [
-    { name: 'Home', href: '/dashboard', icon: Home },
-    { name: 'Meetings', href: '/dashboard/meetings', icon: FileText },
-    { name: 'Projects', href: '/dashboard/projects', icon: FolderOpen },
-    { name: 'Teams', href: '/dashboard/teams', icon: Users },
-    { name: 'Trash', href: '/dashboard/trash', icon: Trash2 },
+    { name: '홈', href: '/dashboard', icon: Home },
+    { name: '회의록', href: '/dashboard/meetings', icon: FileText },
+    { name: '프로젝트', href: '/dashboard/projects', icon: FolderOpen },
+    { name: '팀', href: '/dashboard/teams', icon: Users },
+    { name: '휴지통', href: '/dashboard/trash', icon: Trash2 },
   ];
 
   return (
@@ -41,7 +41,7 @@ export default function Sidebar() {
         <Link href="/dashboard/meetings/new">
           <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white justify-start gap-2 shadow-sm">
             <Plus className="w-4 h-4" />
-            <span>New Meeting</span>
+            <span>새 회의록</span>
           </Button>
         </Link>
       </div>
@@ -71,7 +71,7 @@ export default function Sidebar() {
           </div>
           <div className="flex-1 overflow-hidden">
             <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{userName}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">Workspace Admin</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">워크스페이스 관리자</p>
           </div>
           <Link href="/dashboard/settings">
             <Settings className="w-4 h-4 text-slate-400 hover:text-slate-600 cursor-pointer" />

@@ -25,7 +25,7 @@ export default function RegisterPage() {
       await api.post('/auth/register', { name, email, password });
       router.push('/login?registered=true');
     } catch (err) {
-      const message = (err as any).response?.data?.message || 'Registration failed';
+      const message = (err as any).response?.data?.message || '회원가입에 실패했습니다';
       setError(message);
     } finally {
       setLoading(false);
@@ -41,8 +41,8 @@ export default function RegisterPage() {
               <Zap className="text-white w-6 h-6" />
             </div>
           </div>
-          <CardTitle className="text-2xl">Create an account</CardTitle>
-          <CardDescription>Start managing your meetings faster today</CardDescription>
+          <CardTitle className="text-2xl">계정 만들기</CardTitle>
+          <CardDescription>오늘부터 더 빠르게 회의록을 관리하세요</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
@@ -52,17 +52,17 @@ export default function RegisterPage() {
               </div>
             )}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Full Name</label>
+              <label className="text-sm font-medium">이름</label>
               <Input
                 type="text"
-                placeholder="John Doe"
+                placeholder="홍길동"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Email</label>
+              <label className="text-sm font-medium">이메일</label>
               <Input
                 type="email"
                 placeholder="name@example.com"
@@ -72,7 +72,7 @@ export default function RegisterPage() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Password</label>
+              <label className="text-sm font-medium">비밀번호</label>
               <Input
                 type="password"
                 placeholder="••••••••"
@@ -85,11 +85,11 @@ export default function RegisterPage() {
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 h-11" disabled={loading}>
               {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Create Account
+              계정 만들기
             </Button>
             <p className="text-sm text-slate-500 text-center">
-              Already have an account?{' '}
-              <Link href="/login" className="text-indigo-600 hover:text-indigo-500 font-medium">Sign in</Link>
+              이미 계정이 있으신가요?{' '}
+              <Link href="/login" className="text-indigo-600 hover:text-indigo-500 font-medium">로그인</Link>
             </p>
           </CardFooter>
         </form>

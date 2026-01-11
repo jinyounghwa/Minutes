@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import api from '@/lib/api';
 import { format, differenceInDays, addDays } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
 export default function TrashPage() {
   const [meetings, setMeetings] = useState([]);
@@ -48,6 +49,16 @@ export default function TrashPage() {
     }
   };
 
+  const handlePermanentDelete = async (id: string) => {
+    if (!confirm('정말로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
+    try {
+      await api.delete(`/meetings/${id}/permanent`);
+      fetchTrash();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const getRemainingDays = (deletedAt: string) => {
     const expirationDate = addDays(new Date(deletedAt), 30);
     const daysLeft = differenceInDays(expirationDate, new Date());
@@ -57,15 +68,15 @@ export default function TrashPage() {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Trash</h1>
-        <p className="text-slate-500 dark:text-slate-400">Documents here will be permanently deleted after 30 days</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">휴지통</h1>
+        <p className="text-slate-500 dark:text-slate-400">이곳의 문서는 30일 후 영구 삭제됩니다</p>
       </div>
 
       <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 p-4 rounded-lg flex items-start gap-3 mb-6">
          <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-500 mt-0.5" />
          <div className="text-sm">
-            <p className="font-semibold text-amber-900 dark:text-amber-400">30-Day Recovery Window</p>
-            <p className="text-amber-700 dark:text-amber-500">You can restore any meeting from this list. Once the 30-day period ends, files are gone forever.</p>
+            <p className="font-semibold text-amber-900 dark:text-amber-400">30일 복구 기간</p>
+            <p className="text-amber-700 dark:text-amber-500">이 목록의 모든 회의록을 복구할 수 있습니다. 30일이 지나면 파일은 영구적으로 삭제됩니다.</p>
          </div>
       </div>
 
@@ -73,20 +84,20 @@ export default function TrashPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Deleted Date</TableHead>
-              <TableHead>Days Remaining</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>제목</TableHead>
+              <TableHead>삭제 날짜</TableHead>
+              <TableHead>남은 일수</TableHead>
+              <TableHead className="text-right">작업</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-10 text-slate-500">Loading trash...</TableCell>
+                <TableCell colSpan={4} className="text-center py-10 text-slate-500">휴지통 불러오는 중...</TableCell>
               </TableRow>
             ) : meetings.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-10 text-slate-500">Trash is empty. No deleted documents found.</TableCell>
+                <TableCell colSpan={4} className="text-center py-10 text-slate-500">휴지통이 비어있습니다. 삭제된 문서가 없습니다.</TableCell>
               </TableRow>
             ) : (
               meetings.map((meeting: any) => (
@@ -95,22 +106,22 @@ export default function TrashPage() {
                     {meeting.title}
                   </TableCell>
                   <TableCell className="text-slate-500 text-sm">
-                    {format(new Date(meeting.deleted_at), 'MMM d, yyyy')}
+                    {format(new Date(meeting.deleted_at), 'yyyy년 M월 d일', { locale: ko })}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                        <span className={`text-sm font-semibold ${getRemainingDays(meeting.deleted_at) < 5 ? 'text-red-500' : 'text-slate-700 dark:text-slate-300'}`}>
-                          {getRemainingDays(meeting.deleted_at)} days
+                          {getRemainingDays(meeting.deleted_at)}일
                        </span>
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                        <Button variant="ghost" size="sm" className="gap-2" onClick={() => handleRestore(meeting.id)}>
-                          <RotateCcw className="w-4 h-4" /> Restore
+                          <RotateCcw className="w-4 h-4" /> 복구
                        </Button>
-                       <Button variant="ghost" size="sm" className="gap-2 text-red-500 hover:text-red-600 hover:bg-red-50">
-                          <Trash2 className="w-4 h-4" /> Permanent Delete
+                       <Button variant="ghost" size="sm" className="gap-2 text-red-500 hover:text-red-600 hover:bg-red-50" onClick={() => handlePermanentDelete(meeting.id)}>
+                          <Trash2 className="w-4 h-4" /> 영구 삭제
                        </Button>
                     </div>
                   </TableCell>

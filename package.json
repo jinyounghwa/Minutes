@@ -1,23 +1,18 @@
 {
   "name": "minutes",
   "version": "1.0.0",
-  "description": "Minutes web",
-  "main": "index.js",
-  "workspaces": [
-    "apps/*"
-  ],
+  "description": "MeetingNotes - 회의록 관리 시스템",
   "scripts": {
-    "dev:web": "npm run dev -w apps/web",
-    "dev:api": "npm run start:dev -w apps/api",
-    "build:web": "npm run build -w apps/web",
-    "build:api": "npm run build -w apps/api"
+    "dev:web": "cd apps/web && npm run dev",
+    "dev:api": "cd apps/api && npm run start:dev",
+    "build:web": "cd apps/web && npm run build",
+    "build:api": "cd apps/api && npm run build"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jinyounghwa/Minutes.git"
   },
-  "keywords": [],
+  "keywords": ["meeting", "notes", "documentation"],
   "author": "",
-  "license": "ISC",
-  "type": "module"
+  "license": "ISC"
 }

@@ -36,6 +36,7 @@ interface EditorProps {
 
 export default function Editor({ content, onChange, editable = true }: EditorProps) {
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit,
       Placeholder.configure({

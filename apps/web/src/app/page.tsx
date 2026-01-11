@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { ArrowRight, Zap, Shield, Users, BarChart } from 'lucide-react';
+import { ArrowRight, Brain, Shield, Users, BarChart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BentoGrid, BentoGridItem } from '@/components/landing/BentoGrid';
 import { motion } from 'framer-motion';
@@ -12,29 +12,29 @@ const Scene = dynamic(() => import('@/components/landing/Scene'), { ssr: false }
 export default function LandingPage() {
   const items = [
     {
-      title: "Intelligent Analysis",
-      description: "Automatically extracts key points and organizes them. Smart summaries for long meetings.",
+      title: "지능형 분석",
+      description: "주요 포인트를 자동으로 추출하고 정리합니다. 긴 회의를 위한 스마트 요약.",
       header: <SkeletonOne />,
-      icon: <Zap className="h-4 w-4 text-indigo-400" />,
+      icon: <Brain className="h-4 w-4 text-indigo-400" />,
       className: "md:col-span-2 border-white/10 bg-white/5 hover:bg-white/10",
     },
     {
-      title: "Team Sync",
-      description: "Collaborate in real-time with your team. Share insights instantly.",
+      title: "팀 협업",
+      description: "팀과 실시간으로 협업하세요. 인사이트를 즉시 공유하십시오.",
       header: <SkeletonTwo />,
       icon: <Users className="h-4 w-4 text-neutral-400" />,
       className: "md:col-span-1 border-white/10 bg-white/5 hover:bg-white/10",
     },
     {
-      title: "Visual Data",
-      description: "Visualize meeting trends and timelines with intuitive graphs.",
+      title: "데이터 시각화",
+      description: "직관적인 그래프로 회의 추세 및 타임라인을 시각화합니다.",
       header: <SkeletonThree />,
       icon: <BarChart className="h-4 w-4 text-neutral-400" />,
       className: "md:col-span-1 border-white/10 bg-white/5 hover:bg-white/10",
     },
     {
-      title: "Enterprise Security",
-      description: "Bank-grade encryption and granular permission controls.",
+      title: "엔터프라이즈 보안",
+      description: "은행급 암호화 및 세분화된 권한 제어.",
       header: <SkeletonFour />,
       icon: <Shield className="h-4 w-4 text-neutral-400" />,
       className: "md:col-span-2 border-white/10 bg-white/5 hover:bg-white/10",
@@ -61,11 +61,11 @@ export default function LandingPage() {
           </div>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
-              Log in
+              로그인
             </Link>
             <Link href="/register">
               <Button size="sm" className="bg-white text-black hover:bg-gray-200 border-none font-semibold">
-                Get Started
+                시작하기
               </Button>
             </Link>
           </div>
@@ -76,7 +76,7 @@ export default function LandingPage() {
       <section className="relative z-10 pt-40 pb-20 px-6">
         <div className="max-w-4xl mx-auto text-center mb-24">
              {/* Badge */}
-             <motion.div 
+             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-xs font-medium text-indigo-300 mb-8"
@@ -85,30 +85,30 @@ export default function LandingPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
                 </span>
-                Version 2.0 Released
+                버전 2.0 출시
              </motion.div>
              
-             <motion.h1 
+             <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
                 className="text-6xl md:text-8xl font-bold tracking-tight mb-8 bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/50 pb-2"
              >
-                Meeting Minutes <br />
-                Reimagined.
+                회의 기록의 <br />
+                재정의
              </motion.h1>
              
-             <motion.p 
+             <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
                 className="text-lg md:text-2xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed font-light"
              >
-                Transform chaotic discussions into structured insights. <br className="hidden md:block" />
-                The intelligent workspace for modern teams.
+                혼란스러운 논의를 체계적인 인사이트로 변환합니다. <br className="hidden md:block" />
+                현대 팀을 위한 지능형 협업 공간입니다.
              </motion.p>
              
-             <motion.div 
+             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
@@ -116,12 +116,12 @@ export default function LandingPage() {
              >
                 <Link href="/register">
                   <Button size="lg" className="h-14 px-10 text-lg bg-indigo-600 hover:bg-indigo-500 text-white rounded-full transition-all hover:scale-105 shadow-xl shadow-indigo-900/20">
-                    Start for free <ArrowRight className="ml-2 w-5 h-5" />
+                    무료로 시작하기 <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
                 <Link href="/dashboard">
                    <Button variant="outline" size="lg" className="h-14 px-10 text-lg rounded-full backdrop-blur-sm border-white/20 bg-white/5 hover:bg-white/10 text-white">
-                     View Demo
+                     데모 보기
                    </Button>
                 </Link>
              </motion.div>
@@ -151,8 +151,8 @@ export default function LandingPage() {
             &copy; 2026 Minutes Inc.
           </div>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-white transition-colors">Privacy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms</a>
+            <a href="#" className="hover:text-white transition-colors">개인정보</a>
+            <a href="#" className="hover:text-white transition-colors">약관</a>
             <a href="#" className="hover:text-white transition-colors">GitHub</a>
           </div>
         </div>

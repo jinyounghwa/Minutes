@@ -25,6 +25,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import api from '@/lib/api';
 import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
 interface Meeting {
   id: string;
@@ -63,18 +64,27 @@ export default function MeetingsPage() {
     }
   };
 
+  const getAccessLevelName = (level: string) => {
+    switch (level) {
+      case 'public': return '공개';
+      case 'team': return '팀';
+      case 'private': return '비공개';
+      default: return level;
+    }
+  };
+
   return (
     <div className="p-8">
       <Breadcrumbs />
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Meetings</h1>
-          <p className="text-slate-500 dark:text-slate-400">Manage and view all your meeting notes</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">회의록</h1>
+          <p className="text-slate-500 dark:text-slate-400">모든 회의록을 관리하고 확인하세요</p>
         </div>
         <Link href="/dashboard/meetings/new">
           <Button className="bg-indigo-600 hover:bg-indigo-700">
             <Plus className="w-4 h-4 mr-2" />
-            New Meeting
+            새 회의록
           </Button>
         </Link>
       </div>
@@ -85,34 +95,34 @@ export default function MeetingsPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input 
               className="w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Search meetings..."
+              placeholder="회의록 검색..."
             />
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">Filter</Button>
-            <Button variant="outline" size="sm">Sort</Button>
+            <Button variant="outline" size="sm">필터</Button>
+            <Button variant="outline" size="sm">정렬</Button>
           </div>
         </div>
 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Project</TableHead>
-              <TableHead>Creator</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Access</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>제목</TableHead>
+              <TableHead>프로젝트</TableHead>
+              <TableHead>작성자</TableHead>
+              <TableHead>날짜</TableHead>
+              <TableHead>접근</TableHead>
+              <TableHead className="text-right">작업</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-10 text-slate-500">Loading meetings...</TableCell>
+                <TableCell colSpan={6} className="text-center py-10 text-slate-500">회의록 불러오는 중...</TableCell>
               </TableRow>
             ) : meetings.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-10 text-slate-500">No meetings found. Create your first one!</TableCell>
+                <TableCell colSpan={6} className="text-center py-10 text-slate-500">회의록이 없습니다. 첫 번째 회의록을 만들어 보세요!</TableCell>
               </TableRow>
             ) : (
               meetings.map((meeting) => (
@@ -124,7 +134,7 @@ export default function MeetingsPage() {
                   </TableCell>
                   <TableCell>
                     <Badge variant="secondary" className="font-normal">
-                      {meeting.project?.name || 'General'}
+                      {meeting.project?.name || '일반'}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -136,12 +146,12 @@ export default function MeetingsPage() {
                     </div>
                   </TableCell>
                   <TableCell className="text-slate-500 text-sm">
-                    {format(new Date(meeting.created_at), 'MMM d, yyyy')}
+                    {format(new Date(meeting.created_at), 'yyyy년 M월 d일', { locale: ko })}
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="gap-1.5 font-normal capitalize">
                       {getStatusIcon(meeting.access_level)}
-                      {meeting.access_level}
+                      {getAccessLevelName(meeting.access_level)}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull, ILike } from 'typeorm';
+import { Repository, IsNull, ILike, Not } from 'typeorm';
 import { Project } from '../entities/meeting.entity';
 
 @Injectable()
@@ -52,7 +52,7 @@ export class ProjectsService {
 
   async getDeletedProjects(): Promise<Project[]> {
     return this.projectsRepository.find({
-      where: { deleted_at: IsNull() },
+      where: { deleted_at: Not(IsNull()) },
       withDeleted: true,
       relations: ['team', 'owner'],
     });

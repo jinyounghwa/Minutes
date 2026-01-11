@@ -82,7 +82,7 @@ export default function TemplateManager({ open, onClose, onSelectTemplate }: Tem
       fetchTemplates();
     } catch (err) {
       console.error(err);
-      alert('Failed to create template');
+      alert('템플릿 생성에 실패했습니다');
     } finally {
       setSaving(false);
     }
@@ -102,20 +102,20 @@ export default function TemplateManager({ open, onClose, onSelectTemplate }: Tem
       fetchTemplates();
     } catch (err) {
       console.error(err);
-      alert('Failed to update template');
+      alert('템플릿 수정에 실패했습니다');
     } finally {
       setSaving(false);
     }
   };
 
   const handleDeleteTemplate = async (templateId: string) => {
-    if (!confirm('Are you sure you want to delete this template?')) return;
+    if (!confirm('정말로 이 템플릿을 삭제하시겠습니까?')) return;
     try {
       await api.delete(`/meetings/templates/${templateId}`);
       fetchTemplates();
     } catch (err) {
       console.error(err);
-      alert('Failed to delete template');
+      alert('템플릿 삭제에 실패했습니다');
     }
   };
 
@@ -143,14 +143,14 @@ export default function TemplateManager({ open, onClose, onSelectTemplate }: Tem
             <div>
               <DialogTitle className="flex items-center gap-2">
                 <FileText className="w-5 h-5 text-indigo-600" />
-                Meeting Templates
+                회의 템플릿
               </DialogTitle>
               <DialogDescription>
-                Manage reusable meeting note templates
+                재사용 가능한 회의록 템플릿을 관리하세요
               </DialogDescription>
             </div>
             <Button size="sm" onClick={() => setShowCreateDialog(true)}>
-              <Plus className="w-4 h-4 mr-1" /> New Template
+              <Plus className="w-4 h-4 mr-1" /> 새 템플릿
             </Button>
           </div>
         </DialogHeader>
@@ -162,8 +162,8 @@ export default function TemplateManager({ open, onClose, onSelectTemplate }: Tem
         ) : templates.length === 0 ? (
           <div className="text-center py-12">
             <FileText className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-500 mb-2">No templates yet</p>
-            <p className="text-sm text-slate-400">Create your first template to get started!</p>
+            <p className="text-slate-500 mb-2">아직 템플릿이 없습니다</p>
+            <p className="text-sm text-slate-400">첫 번째 템플릿을 만들어 시작하세요!</p>
           </div>
         ) : (
           <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
@@ -173,7 +173,7 @@ export default function TemplateManager({ open, onClose, onSelectTemplate }: Tem
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <h3 className="font-semibold text-sm">{template.name}</h3>
-                      {template.is_default && <Badge variant="secondary">Default</Badge>}
+                      {template.is_default && <Badge variant="secondary">기본</Badge>}
                     </div>
                     <div className="bg-slate-50 dark:bg-slate-900/50 rounded p-3 mb-3">
                       <div className="text-xs text-slate-500 line-clamp-2">
@@ -188,7 +188,7 @@ export default function TemplateManager({ open, onClose, onSelectTemplate }: Tem
                         size="sm"
                         onClick={() => handleUseTemplate(template)}
                       >
-                        <Copy className="w-4 h-4" /> Use
+                        <Copy className="w-4 h-4" /> 사용
                       </Button>
                     )}
                     <Button
@@ -217,18 +217,18 @@ export default function TemplateManager({ open, onClose, onSelectTemplate }: Tem
           <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>
-                {editingTemplate ? 'Edit Template' : 'Create Template'}
+                {editingTemplate ? '템플릿 수정' : '템플릿 만들기'}
               </DialogTitle>
               <DialogDescription>
-                {editingTemplate ? 'Update your template content.' : 'Create a new meeting template.'}
+                {editingTemplate ? '템플릿 내용을 수정하세요.' : '새 회의 템플릿을 만드세요.'}
               </DialogDescription>
             </DialogHeader>
             <div className="flex-1 flex flex-col min-h-0">
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Template Name</label>
+                  <label className="text-sm font-medium">템플릿 이름</label>
                   <Input
-                    placeholder="Weekly Standup"
+                    placeholder="주간 스탠드업"
                     value={templateName}
                     onChange={(e) => setTemplateName(e.target.value)}
                   />
@@ -248,10 +248,10 @@ export default function TemplateManager({ open, onClose, onSelectTemplate }: Tem
                 setTemplateName('');
                 setTemplateContent(undefined);
               }}>
-                Cancel
+                취소
               </Button>
               <Button onClick={editingTemplate ? handleUpdateTemplate : handleCreateTemplate} disabled={saving || !templateName}>
-                {saving ? 'Saving...' : editingTemplate ? 'Update' : 'Create'}
+                {saving ? '저장 중...' : editingTemplate ? '수정' : '생성'}
               </Button>
             </DialogFooter>
           </DialogContent>
