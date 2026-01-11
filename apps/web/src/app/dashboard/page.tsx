@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
-import { Plus, FileText, Clock, Lock, MoreVertical } from 'lucide-react';
+import { Plus, FileText, Clock, Lock, MoreVertical, BarChart3, Unlock, ShieldAlert } from 'lucide-react';
 import api from '@/lib/api';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -18,22 +18,40 @@ interface Meeting {
   content_text?: string;
 }
 
+interface Statistics {
+  totalMeetings: number;
+  recentMeetings: number;
+  byAccessLevel: {
+    public: number;
+    team: number;
+    private: number;
+  };
+  topProjects: Array<{ id: string; name: string; count: number }>;
+  dailyStats: Array<{ date: string; count: number }>;
+}
+
 export default function DashboardPage() {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [statistics, setStatistics] = useState<Statistics | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
-    fetchMeetings();
+    fetchDashboardData();
   }, []);
 
-  const fetchMeetings = async () => {
+  const fetchDashboardData = async () => {
     try {
-      const res = await api.get('/meetings');
-      setMeetings(res.data || []);
+      setLoading(true);
+      const [meetingsRes, statsRes] = await Promise.all([
+        api.get('/meetings'),
+        api.get('/meetings/stats/overview'),
+      ]);
+      setMeetings(meetingsRes.data || []);
+      setStatistics(statsRes.data);
     } catch (err) {
-      console.error('Failed to fetch meetings', err);
+      console.error('Failed to fetch dashboard data', err);
     } finally {
       setLoading(false);
     }
@@ -85,6 +103,91 @@ export default function DashboardPage() {
           <span>휴지통</span>
         </Button>
       </div>
+
+      {/* Statistics Cards */}
+      {statistics && (
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">통계</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">전체 회의록</p>
+                    <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">
+                      {statistics.totalMeetings}
+                    </p>
+                  </div>
+                  <FileText className="w-12 h-12 text-indigo-600 opacity-20" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">공개</p>
+                    <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">
+                      {statistics.byAccessLevel.public}
+                    </p>
+                  </div>
+                  <Unlock className="w-12 h-12 text-green-600 opacity-20" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">팀</p>
+                    <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">
+                      {statistics.byAccessLevel.team}
+                    </p>
+                  </div>
+                  <Lock className="w-12 h-12 text-blue-600 opacity-20" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">비공개</p>
+                    <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">
+                      {statistics.byAccessLevel.private}
+                    </p>
+                  </div>
+                  <ShieldAlert className="w-12 h-12 text-red-600 opacity-20" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Top Projects */}
+          {statistics.topProjects.length > 0 && (
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">상위 프로젝트</h3>
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                {statistics.topProjects.map((project) => (
+                  <Card key={project.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4">
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
+                        {project.name}
+                      </p>
+                      <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-2">
+                        {project.count}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Recent Meetings */}
       <div>

@@ -43,6 +43,11 @@ export class MeetingsController {
     return this.meetingsService.getDeletedMeetings();
   }
 
+  @Get('stats/overview')
+  async getStatistics(@Request() req: RequestWithUser) {
+    return this.meetingsService.getStatistics(req.user.userId);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.meetingsService.findOne(id);

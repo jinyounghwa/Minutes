@@ -357,4 +357,95 @@ export class MeetingsService {
     }
     return template;
   }
+
+  // Statistics
+  async getStatistics(userId: string) {
+    // 전체 회의록 수
+    const totalMeetings = await this.meetingsRepository.count({
+      where: { created_by: userId, deleted_at: IsNull() },
+    });
+
+    // 최근 7일간 회의록 수
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const recentMeetings = await this.meetingsRepository.count({
+      where: {
+        created_by: userId,
+        deleted_at: IsNull(),
+        created_at: Not(IsNull()),
+      },
+    });
+
+    // 접근 수준별 회의록 수
+    const publicMeetings = await this.meetingsRepository.count({
+      where: {
+        created_by: userId,
+        deleted_at: IsNull(),
+        access_level: 'public',
+      },
+    });
+
+    const teamMeetings = await this.meetingsRepository.count({
+      where: {
+        created_by: userId,
+        deleted_at: IsNull(),
+        access_level: 'team',
+      },
+    });
+
+    const privateMeetings = await this.meetingsRepository.count({
+      where: {
+        created_by: userId,
+        deleted_at: IsNull(),
+        access_level: 'private',
+      },
+    });
+
+    // 프로젝트별 회의록 수
+    const projectStats = await this.meetingsRepository
+      .createQueryBuilder('m')
+      .leftJoinAndSelect('m.project', 'p')
+      .where('m.created_by = :userId', { userId })
+      .andWhere('m.deleted_at IS NULL')
+      .groupBy('p.id')
+      .addGroupBy('p.name')
+      .select('p.id', 'id')
+      .addSelect('p.name', 'name')
+      .addSelect('COUNT(m.id)', 'count')
+      .orderBy('COUNT(m.id)', 'DESC')
+      .limit(5)
+      .getRawMany();
+
+    // 최근 7일간 일별 회의록 수
+    const dailyStats = await this.meetingsRepository
+      .createQueryBuilder('m')
+      .where('m.created_by = :userId', { userId })
+      .andWhere('m.deleted_at IS NULL')
+      .andWhere('m.created_at >= :sevenDaysAgo', { sevenDaysAgo })
+      .select('DATE(m.created_at)', 'date')
+      .addSelect('COUNT(m.id)', 'count')
+      .groupBy('DATE(m.created_at)')
+      .orderBy('DATE(m.created_at)', 'ASC')
+      .getRawMany();
+
+    return {
+      totalMeetings,
+      recentMeetings,
+      byAccessLevel: {
+        public: publicMeetings,
+        team: teamMeetings,
+        private: privateMeetings,
+      },
+      topProjects: projectStats.map((stat: any) => ({
+        id: stat.id,
+        name: stat.name || '(기타)',
+        count: parseInt(stat.count, 10),
+      })),
+      dailyStats: dailyStats.map((stat: any) => ({
+        date: stat.date,
+        count: parseInt(stat.count, 10),
+      })),
+    };
+  }
 }
